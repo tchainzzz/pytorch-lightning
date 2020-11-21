@@ -64,26 +64,53 @@ class CPUAccelerator(Accelerator):
     def training_step(self, args):
         if self.trainer.amp_backend == AMPType.NATIVE:
             with torch.cuda.amp.autocast():
-                output = self.trainer.model.training_step(*args)
+                output = self.__training_step(args)
         else:
-            output = self.trainer.model.training_step(*args)
+            output = self.__training_step(args)
+
+        return output
+
+    def __training_step(self, args):
+        batch = args[0]
+        batch = self.to_device(batch)
+        args[0] = batch
+        output = self.trainer.model.training_step(*args)
         return output
 
     def validation_step(self, args):
         if self.trainer.amp_backend == AMPType.NATIVE:
             with torch.cuda.amp.autocast():
-                output = self.trainer.model.validation_step(*args)
+                output = self.__validation_step(args)
         else:
-            output = self.trainer.model.validation_step(*args)
+            output = self.__validation_step(args)
+
+        return output
+
+    def __validation_step(self, args):
+        batch = args[0]
+        batch = self.to_device(batch)
+        args[0] = batch
+        output = self.trainer.model.validation_step(*args)
         return output
 
     def test_step(self, args):
         if self.trainer.amp_backend == AMPType.NATIVE:
             with torch.cuda.amp.autocast():
-                output = self.trainer.model.test_step(*args)
+                output = self.__test_step(args)
         else:
-            output = self.trainer.model.test_step(*args)
+            output = self.__test_step(args)
+
         return output
+
+    def __test_step(self, args):
+        batch = args[0]
+        batch = self.to_device(batch)
+        args[0] = batch
+        output = self.trainer.model.test_step(*args)
+        return output
+
+    def to_device(self, batch):
+        return self.batch_to_device(batch)
 
     def sync_tensor(self,
                     tensor: Union[torch.Tensor],
