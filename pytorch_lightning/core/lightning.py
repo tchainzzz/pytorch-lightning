@@ -46,12 +46,12 @@ if TPU_AVAILABLE:
 
 class LightningModule(
     ABC,
+    CheckpointHooks,
+    DataHooks,
     DeviceDtypeModuleMixin,
     GradInformation,
-    ModelIO,
     ModelHooks,
-    DataHooks,
-    CheckpointHooks,
+    ModelIO,
     Module,
 ):
     # Below is for property support of JIT in PyTorch 1.7
@@ -1624,7 +1624,7 @@ class LightningModule(
                 if example_inputs is None:
                     example_inputs = self.example_input_array
                 # automatically send example inputs to the right device and use trace
-                example_inputs = self.transfer_batch_to_device(example_inputs, device=self.device)
+                example_inputs = self.prepare_batch_for_transfer(example_inputs)
                 torchscript_module = torch.jit.trace(func=self.eval(), example_inputs=example_inputs, **kwargs)
             else:
                 raise ValueError(f"The 'method' parameter only supports 'script' or 'trace', but value given was:"
