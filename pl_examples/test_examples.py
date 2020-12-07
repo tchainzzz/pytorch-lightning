@@ -26,7 +26,7 @@ ARGS_DP = ARGS_DEFAULT + """
 
 ARGS_DDP = ARGS_DEFAULT + """
 --gpus 2 \
---accelerator ddp \
+--accelerator ddp_spawn \
 """
 
 ARGS_AMP = """
