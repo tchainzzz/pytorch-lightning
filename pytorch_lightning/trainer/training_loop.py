@@ -25,13 +25,8 @@ from pytorch_lightning.core.memory import ModelSummary
 from pytorch_lightning.core.optimizer import LightningOptimizer
 from pytorch_lightning.core.step_result import EvalResult, Result
 from pytorch_lightning.trainer.states import TrainerState
-<<<<<<< HEAD
-from pytorch_lightning.trainer.supporters import Accumulator, TensorRunningAccum
-from pytorch_lightning.utilities import TPU_AVAILABLE, AMPType, parsing
-=======
 from pytorch_lightning.trainer.supporters import CombinedLoaderIterator, TensorRunningAccum, Accumulator
 from pytorch_lightning.utilities import parsing, AMPType
->>>>>>> integrate combined loader iter to training loop
 from pytorch_lightning.utilities.distributed import rank_zero_info, rank_zero_warn
 from pytorch_lightning.utilities.exceptions import MisconfigurationException
 from pytorch_lightning.utilities.memory import recursive_detach
