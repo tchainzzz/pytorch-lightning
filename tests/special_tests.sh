@@ -11,26 +11,8 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
-default_language_version:
-  python: python3.8
-
-repos:
-  - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v2.3.0
-    hooks:
-      - id: trailing-whitespace
-      - id: end-of-file-fixer
-
-  - repo: local
-    hooks:
-      - id: isort
-        name: isort
-        entry: python -m isort
-        args: [--settings-path, ./pyproject.toml]
-        language: system
-        types: [python]
-
-  - repo: https://github.com/pre-commit/mirrors-mypy
-    hooks:
-      - id: mypy
+# Running special tests
+export PL_RUNNING_SPECIAL_TESTS=1
+DEFAULTS="-m coverage run --source pytorch_lightning -a -m pytest --verbose --capture=no"
+python ${DEFAULTS} tests/trainer/optimization/test_manual_optimization.py::test_step_with_optimizer_closure_with_different_frequencies_ddp
+python ${DEFAULTS} tests/plugins/test_rpc_plugin.py::test_rpc_function_calls_ddp
