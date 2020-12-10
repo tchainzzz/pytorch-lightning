@@ -20,7 +20,6 @@ from torch.nn import functional as F
 from pytorch_lightning.metrics.functional.average_precision import average_precision as __ap
 from pytorch_lightning.metrics.functional.precision_recall_curve import precision_recall_curve as __prc
 from pytorch_lightning.metrics.functional.roc import roc as __roc
-# TODO: back compatibility, remove in v1.3
 from pytorch_lightning.metrics.utils import (
     to_categorical as __tc,
     to_onehot as __to,
@@ -890,6 +889,8 @@ def multiclass_precision_recall_curve(
         " `from pytorch_lightning.metrics.functional.precision_recall_curve import precision_recall_curve`."
         " It will be removed in v1.3.0", DeprecationWarning
     )
+    if num_classes is None:
+        num_classes = get_num_classes(pred, target, num_classes)
     return __prc(preds=pred, target=target, sample_weights=sample_weight, num_classes=num_classes)
 
 
