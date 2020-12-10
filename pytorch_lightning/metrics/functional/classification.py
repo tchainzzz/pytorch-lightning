@@ -17,6 +17,7 @@ from typing import Callable, Optional, Sequence, Tuple
 import torch
 from torch.nn import functional as F
 
+from pytorch_lightning.metrics.functional.f_beta import fbeta as __fb, f1 as __f1
 from pytorch_lightning.metrics.utils import to_categorical, get_num_classes, reduce, class_reduce
 from pytorch_lightning.utilities import rank_zero_warn
 
@@ -772,3 +773,44 @@ def iou(
         ])
 
     return reduce(scores, reduction=reduction)
+
+
+# todo: remove in 1.2
+def fbeta_score(
+        pred: torch.Tensor,
+        target: torch.Tensor,
+        beta: float,
+        num_classes: Optional[int] = None,
+        class_reduction: str = 'micro',
+) -> torch.Tensor:
+    """
+    Computes the F-beta score which is a weighted harmonic mean of precision and recall.
+
+    .. warning :: Deprecated in favor of :func:`~pytorch_lightning.metrics.functional.f_beta.fbeta`
+    """
+    rank_zero_warn(
+        "This `average_precision` was deprecated in v1.0.x in favor of"
+        " `from pytorch_lightning.metrics.functional.f_beta import fbeta`."
+        " It will be removed in v1.2.0", DeprecationWarning
+    )
+    return __fb(preds=pred, target=target, beta=beta, num_classes=num_classes, average=class_reduction)
+
+
+# todo: remove in 1.2
+def f1_score(
+        pred: torch.Tensor,
+        target: torch.Tensor,
+        num_classes: Optional[int] = None,
+        class_reduction: str = 'micro',
+) -> torch.Tensor:
+    """
+    Computes the F1-score (a.k.a F-measure), which is the harmonic mean of the precision and recall.
+
+    .. warning :: Deprecated in favor of :func:`~pytorch_lightning.metrics.functional.f_beta.f1`
+    """
+    rank_zero_warn(
+        "This `average_precision` was deprecated in v1.0.x in favor of"
+        " `from pytorch_lightning.metrics.functional.f_beta import f1`."
+        " It will be removed in v1.2.0", DeprecationWarning
+    )
+    return __f1(preds=pred, target=target, num_classes=num_classes, average=class_reduction)
