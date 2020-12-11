@@ -214,9 +214,10 @@ class EvaluationLoop(object):
 
         return deprecated_results
 
-    def log_epoch_metrics_on_evaluation_end(self):
+    def log_epoch_metrics_on_evaluation_end(self, inside_train_loop=False):
         # get the final loop results
-        eval_loop_results = self.trainer.logger_connector.get_evaluate_epoch_results(self.testing)
+        eval_loop_results = self.trainer.logger_connector.get_evaluate_epoch_results(self.testing,
+                inside_train_loop=inside_train_loop)
         return eval_loop_results
 
     def __run_eval_epoch_end(self, num_dataloaders, using_eval_result):
@@ -342,7 +343,6 @@ class EvaluationLoop(object):
         if isinstance(output, EvalResult):
             step_log_metrics = output.get_batch_log_metrics(include_forked_originals=False)
             step_pbar_metrics = output.get_batch_pbar_metrics(include_forked_originals=False)
-
         self.__log_result_step_metrics(step_log_metrics, step_pbar_metrics, batch_idx)
 
     def __log_result_step_metrics(self, step_log_metrics, step_pbar_metrics, batch_idx):
@@ -358,6 +358,8 @@ class EvaluationLoop(object):
             for k, v in step_log_metrics.items():
                 metrics_by_epoch[f'{k}/epoch_{self.trainer.current_epoch}'] = v
 
+            # depending on if this is a formal full evaluation step or an internal validation
+            # step within a training epoch, we may need to switch the logging behavior
             self.trainer.logger_connector.log_metrics(metrics_by_epoch, {}, step=batch_idx)
 
         if len(step_pbar_metrics) > 0:

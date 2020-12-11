@@ -551,7 +551,7 @@ class Trainer(
             # hook
             self.train_loop.on_train_end()
 
-    def run_evaluation(self, test_mode: bool = False, max_batches=None):
+    def run_evaluation(self, test_mode: bool = False, max_batches=None, inside_train_loop: Optional[bool] = False):
 
         # used to know if we are logging for val, test + reset cached results
         self.logger_connector.set_stage(test_mode, reset=True)
@@ -610,7 +610,11 @@ class Trainer(
                 self.evaluation_loop.on_evaluation_batch_end(output, batch, batch_idx, dataloader_idx)
 
                 # log batch metrics
-                self.evaluation_loop.log_evaluation_step_metrics(output, batch_idx)
+                if inside_train_loop:
+                    logging_step = None
+                else:
+                    logging_step = batch_idx
+                self.evaluation_loop.log_evaluation_step_metrics(output, logging_step)
 
                 # track epoch level outputs
                 dl_outputs = self.track_output_for_epoch_end(dl_outputs, output)
@@ -628,7 +632,7 @@ class Trainer(
         self.evaluation_loop.on_evaluation_end()
 
         # log epoch metrics
-        eval_loop_results = self.evaluation_loop.log_epoch_metrics_on_evaluation_end()
+        eval_loop_results = self.evaluation_loop.log_epoch_metrics_on_evaluation_end(inside_train_loop=inside_train_loop)
 
         # save predictions to disk
         self.evaluation_loop.predictions.to_disk()
